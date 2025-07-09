@@ -1,0 +1,73 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="https://trello.com/power-ups/power-up.css">
+    <link rel="stylesheet" href="./css/overlay.css">
+    <script src="https://trello.com/power-ups/power-up.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-sheetrock/1.1.1/dist/sheetrock.min.js"></script>
+  </head>
+  <body>
+    <div id="content">
+      <h2>Estimate Card:</h2>
+      <span id="estimate-message"></span>
+      <table id="switch-hitters" class="table table-condensed table-striped"></table>
+    </div>
+<script>
+  var Promise = TrelloPowerUp.Promise;
+  var t = TrelloPowerUp.iframe();
+  var gEstimationSheetUrl = '';
+  var userEmail = '';
+
+  t.render(function(){
+    return Promise.all([
+      t.get('board', 'shared', 'estimatetimeurl'),
+      t.get('organization', 'private', 'email')
+    ])
+    .spread(function(savedEstimationSheetUrl, savedUserEmail){
+      if(savedEstimationSheetUrl){
+        gEstimationSheetUrl = savedEstimationSheetUrl;
+      }
+      if(savedUserEmail){
+        userEmail = savedUserEmail;
+      }
+    });
+  });
+
+  // console.log('gEstimationSheetUrl: ', gEstimationSheetUrl);
+  // console.log('userEmail: ', userEmail);
+
+  var mySpreadsheet = 'https://docs.google.com/spreadsheets/d/1dqBoWSThdbbgKqCwUy-hbk9w_K8EDhfni5t44OSnddE/edit#gid=0'
+  // var mySpreadsheet = 'https://docs.google.com/spreadsheets/d/1_1o8qHdUPdgzwZEV5PDx3VDt9IoByaeJDNcOAAIQZ7M/edit#gid=440459845'
+
+  var estimationColumn = "O";
+  var estimationCardUrl = "D";
+  var cardUrl = "https://trello.com/c/OiJlk2de/1-card1";
+  var getValues = "select *";
+  var columnNumber = '';
+  console.log('getValues: ', getValues);
+  sheetrock({
+    url: mySpreadsheet,
+    query: getValues,
+    callback: function (error, options, response) {
+      console.log(response);
+      if (!error) {
+        $.each($(response.rows[0].labels), function(index, columnName){
+          if (columnName == 'TeamEstimation') {
+            columnNumber = index
+          }
+        });
+
+        console.log(String.fromCharCode(65+columnNumber));
+        // console.log('html', response.html);
+        // console.log('callback: ', $(response.html).find('td').text());
+      } else {
+        console.log('Error :', error);
+      }
+    },
+    fetchSize: 1
+  });
+
+</script>
+
+</body>
+</html>
